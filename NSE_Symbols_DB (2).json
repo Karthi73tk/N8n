@@ -1,0 +1,758 @@
+{
+  "name": "NSE_Symbols_DB",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "truncate table INDEXLIST;"
+      },
+      "id": "7e595d45-0682-4017-8934-ae88ba075f5c",
+      "name": "MySQL2",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        160
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from INDEXLIST;"
+      },
+      "id": "d679c070-32f2-45c5-8d85-905325c2792c",
+      "name": "MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        360
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "Symbol",
+              "value": "={{$json[\"data\"].split('\\n')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d39b4c1-882b-4c19-a7e9-edfd9e64e28d",
+      "name": "Set1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        320,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "//a=$('Set').all()\n//out=a[0]\nconst myText = $node[\"Set1\"].json[\"Symbol\"];\nlth = myText.length\nlth1 = lth - 1\nconst Symbols = [];\n\nfor (let i = 1; i < lth1; i++) {\n    const item = myText[i];\n    const parts = item.split(',');\n    let Symbol = parts[2];\n    Symbol = Symbol.replace(/&/g, '_').replace(/-/g, '_');\n    Symbols.push(Symbol);\n}  \nreturn [{\n  json: {Symbols}\n}]"
+      },
+      "id": "b80ed2b0-85f4-4777-adc8-eb0bc005e087",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        520,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=Symbols",
+        "options": {}
+      },
+      "id": "8a80cb2d-0d14-4094-8619-4e85a71edc49",
+      "name": "Item Lists1",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        720,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO INDEXLIST(Symbol,Indices) values('{{ $node[\"Item Lists1\"].json[\"Symbols\"] }}', 'NIFTY50')"
+      },
+      "id": "fa09a73d-91c6-4608-9931-a2064843e37b",
+      "name": "InsertMYSQL1",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        900,
+        520
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "Symbol",
+              "value": "={{$json[\"data\"].split('\\n')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "150d03d8-de0e-4c71-8f38-49e754b50921",
+      "name": "Set2",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        320,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "//a=$('Set').all()\n//out=a[0]\nconst myText = $node[\"Set2\"].json[\"Symbol\"];\nlth = myText.length\nlth1 = lth - 1\nconst Symbols = [];\n\nfor (let i = 1; i < lth1; i++) {\n    const item = myText[i];\n    const parts = item.split(',');\n    let Symbol = parts[2];\n    Symbol = Symbol.replace(/&/g, '_').replace(/-/g, '_');\n    Symbols.push(Symbol);\n}  \nreturn [{\n  json: {Symbols}\n}]"
+      },
+      "id": "b1e3fa95-b981-4535-b94f-5da3b6465370",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        520,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=Symbols",
+        "options": {}
+      },
+      "id": "3bc43864-6b29-4a2e-b96f-17b364ba3546",
+      "name": "Item Lists2",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        720,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO INDEXLIST(Symbol,Indices) values('{{ $node[\"Item Lists2\"].json[\"Symbols\"] }}', 'NEXT50')"
+      },
+      "id": "f3b820ba-ea30-41e6-b251-ff042943acf0",
+      "name": "InsertMYSQL2",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        900,
+        720
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "Symbol",
+              "value": "={{$json[\"data\"].split('\\n')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7ea2f77e-aef8-4945-a783-c9f7d369e370",
+      "name": "Set3",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        360,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "//a=$('Set').all()\n//out=a[0]\nconst myText = $node[\"Set3\"].json[\"Symbol\"];\nlth = myText.length\nlth1 = lth - 1\nconst Symbols = [];\n\nfor (let i = 1; i < lth1; i++) {\n    const item = myText[i];\n    const parts = item.split(',');\n    let Symbol = parts[2];\n    Symbol = Symbol.replace(/&/g, '_').replace(/-/g, '_');\n    Symbols.push(Symbol);\n}  \nreturn [{\n  json: {Symbols}\n}]"
+      },
+      "id": "af1de73c-06f2-4138-8296-700fa2684164",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        540,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=Symbols",
+        "options": {}
+      },
+      "id": "1546e245-ee49-4ee5-8dbb-b9287a419bd4",
+      "name": "Item Lists3",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        760,
+        940
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO INDEXLIST(Symbol,Indices) values('{{ $node[\"Item Lists3\"].json[\"Symbols\"] }}', 'MIDCAP150')"
+      },
+      "id": "acf1f172-8751-4948-8524-1f940a7345d8",
+      "name": "InsertMYSQL3",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        940,
+        940
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "Symbol",
+              "value": "={{$json[\"data\"].split('\\n')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "78a1a443-7dfc-41f0-b3f3-73b1943c6278",
+      "name": "Set4",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "//a=$('Set').all()\n//out=a[0]\nconst myText = $node[\"Set4\"].json[\"Symbol\"];\nlth = myText.length\nlth1 = lth - 1\nconst Symbols = [];\n\nfor (let i = 1; i < lth1; i++) {\n    const item = myText[i];\n    const parts = item.split(',');\n    let Symbol = parts[2];\n    Symbol = Symbol.replace(/&/g, '_').replace(/-/g, '_');\n    Symbols.push(Symbol);\n}  \nreturn [{\n  json: {Symbols}\n}]"
+      },
+      "id": "eb37d1e2-dd1b-4a57-917a-377d80f6652b",
+      "name": "Code4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=Symbols",
+        "options": {}
+      },
+      "id": "80ec3ff9-fc56-4687-aefc-568452c03cb7",
+      "name": "Item Lists4",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        760,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO INDEXLIST(Symbol,Indices) values('{{ $node[\"Item Lists4\"].json[\"Symbols\"] }}', 'SMALLCAP250')"
+      },
+      "id": "423e0092-e10a-4ef5-9d2d-547cff1d7211",
+      "name": "InsertMYSQL4",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        940,
+        1160
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www1.nseindia.com/content/indices/ind_nifty50list.csv",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "b3227cab-11f6-489d-b9f2-8711baa0e311",
+      "name": "NIFTY50",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        140,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www1.nseindia.com/content/indices/ind_niftynext50list.csv",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "a74428c7-0e1a-41fd-8e5d-369b08032f6e",
+      "name": "NIFTYNEXT50",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        140,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "Symbol",
+              "value": "={{$json[\"data\"].split('\\n')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "64aa9e18-c4db-4148-b763-158fb09bae6b",
+      "name": "Set5",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "//a=$('Set').all()\n//out=a[0]\nconst myText = $node[\"Set5\"].json[\"Symbol\"];\nlth = myText.length\nlth1 = lth - 1\nconst Symbols = [];\n\nfor (let i = 1; i < lth1; i++) {\n    const item = myText[i];\n    const parts = item.split(',');\n    let Symbol = parts[2];\n    Symbol = Symbol.replace(/&/g, '_').replace(/-/g, '_');\n    Symbols.push(Symbol);\n}  \nreturn [{\n  json: {Symbols}\n}]"
+      },
+      "id": "78b8fc07-edf6-4a6b-a50a-d7fc5baf5c26",
+      "name": "Code5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        560,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=Symbols",
+        "options": {}
+      },
+      "id": "3998db6a-f66a-4d6e-bb89-10475bfbccf3",
+      "name": "Item Lists5",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        760,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO INDEXLIST(Symbol,Indices) values('{{ $node[\"Item Lists5\"].json[\"Symbols\"] }}', 'MICROCAP250')"
+      },
+      "id": "ef89a602-1a82-4f09-b36a-61bb676c9515",
+      "name": "InsertMYSQL5",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        940,
+        1360
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www1.nseindia.com/content/indices/ind_niftymicrocap250_list.csv",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "686bb484-38cd-4bba-b302-e49374a1403c",
+      "name": "MICROCAP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        180,
+        1360
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www1.nseindia.com/content/indices/ind_niftysmallcap250list.csv",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "764dd99a-53b5-4e2b-b7ca-19b12a7b0c2a",
+      "name": "SMALLCAP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        180,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www1.nseindia.com/content/indices/ind_niftymidcap150list.csv",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "6400928b-43fa-4c0c-978e-1d7422d809b4",
+      "name": "MIDCAP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        160,
+        940
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "a1fc8999-ebef-4f8b-b05e-cf4a6b53b2b0",
+      "name": "When clicking \"Execute Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        1020
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Item Lists1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists1": {
+      "main": [
+        [
+          {
+            "node": "InsertMYSQL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Item Lists2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists2": {
+      "main": [
+        [
+          {
+            "node": "InsertMYSQL2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set3": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Item Lists3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists3": {
+      "main": [
+        [
+          {
+            "node": "InsertMYSQL3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set4": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Item Lists4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists4": {
+      "main": [
+        [
+          {
+            "node": "InsertMYSQL4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NIFTY50": {
+      "main": [
+        [
+          {
+            "node": "Set1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NIFTYNEXT50": {
+      "main": [
+        [
+          {
+            "node": "Set2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set5": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Item Lists5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists5": {
+      "main": [
+        [
+          {
+            "node": "InsertMYSQL5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MICROCAP": {
+      "main": [
+        [
+          {
+            "node": "Set5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMALLCAP": {
+      "main": [
+        [
+          {
+            "node": "Set4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MIDCAP": {
+      "main": [
+        [
+          {
+            "node": "Set3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking \"Execute Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "NIFTY50",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "NIFTYNEXT50",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MIDCAP",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "SMALLCAP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "f56775a8-5563-4de5-a5c2-f0b3363e6151",
+  "id": 6,
+  "meta": {
+    "instanceId": "58ee68d60517f9d2ac8f791fb763c92805f9c9a4daef7c20b9331d66a632c61f"
+  },
+  "tags": []
+}

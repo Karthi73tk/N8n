@@ -1,0 +1,1008 @@
+{
+  "name": "USDINR_EOD",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://www1.nseindia.com/archives/cd/bhav/CD_Bhavcopy{{$json[\"dt\"]}}.zip",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "f46158d1-0840-46db-81e4-5c94bc9c27e5",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [
+        840,
+        680
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true,
+      "notes": "Failed"
+    },
+    {
+      "parameters": {},
+      "id": "799cb538-8081-4de6-ad28-064ae1250b62",
+      "name": "Compression",
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "file_0",
+        "options": {}
+      },
+      "id": "92d09246-23e4-49ec-8c5e-838627eee39c",
+      "name": "Spreadsheet File",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"CONTRACT_D\"]}}",
+              "value2": "FUTCURUSDINR27-JAN-2023"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "da615f9c-54bd-4523-9e98-b124058af0bf",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        780
+      ],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "value": "={{ $node[\"Function\"].json[\"date_today\"] }}",
+        "dataPropertyName": "dt",
+        "custom": true,
+        "toFormat": "DDMMYY",
+        "options": {}
+      },
+      "id": "b4aeed27-fdce-45b8-9edb-646bdc9ae1f6",
+      "name": "Date & Time",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 1,
+      "position": [
+        640,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "var date = new Date().toISOString();\nvar day = new Date().getDay();\nconst weekday = [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"];\nitems[0].json.date_today = date;\nitems[0].json.day_today = weekday[day];\n\nreturn items;"
+      },
+      "name": "Function",
+      "type": "n8n-nodes-base.function",
+      "position": [
+        20,
+        580
+      ],
+      "typeVersion": 1,
+      "id": "32bf8d03-7fe8-4eb7-ab7b-67779a0fb29a"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"day_today\"] }}",
+              "value2": "Saturday"
+            },
+            {
+              "value1": "={{ $json[\"day_today\"] }}",
+              "value2": "Sunday"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "4c7ee2a6-5718-42db-89cd-adc1b477ef83",
+      "name": "IF1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        220,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "custom",
+              "cronExpression": "1 00 20  * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "5cd4f370-5847-41ee-a180-876c38a9d2f9",
+      "name": "Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO USDINRohlc(Date,Symbol,Open,High,Low,Close) values('{{ $node[\"DBdate\"].json[\"dbdate\"] }}','USDINR','{{ $node[\"IF\"].json[\"OPEN_PRICE\"] }}','{{ $node[\"IF\"].json[\"HIGH_PRICE\"] }}','{{ $node[\"IF\"].json[\"LOW_PRICE\"] }}','{{ $node[\"IF\"].json[\"CLOSE_PRIC\"] }}');"
+      },
+      "id": "6961d43b-8757-44b0-970c-bb54979e6a65",
+      "name": "MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        2480,
+        400
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select * from USDINRohlc where date=\"{{ $json[\"dbdate\"] }}\""
+      },
+      "id": "f511dffd-ff21-4250-9242-e9933d765d76",
+      "name": "MySQL1",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        2040,
+        600
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"close\"] }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "id": "dac5a7e8-fef6-4537-a95c-62a16cda7f81",
+      "name": "IF2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001849879177",
+        "text": "={{ $node[\"DBdate\"].json[\"dbdate\"] }} Data is already updated in DB \nClose : {{ $node[\"MySQL1\"].json[\"close\"] }}",
+        "additionalFields": {}
+      },
+      "id": "eecfb3b9-d90c-46ed-b809-73200745ea68",
+      "name": "Telegram1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        2500,
+        700
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001849879177",
+        "text": "=====================\nEXPIRY : {{$node[\"IF\"].json[\"CONTRACT_D\"].slice(12,23)}}\nO : {{$node[\"IF\"].json[\"OPEN_PRICE\"]}} H : {{$node[\"IF\"].json[\"HIGH_PRICE\"]}} L : {{$node[\"IF\"].json[\"LOW_PRICE\"]}} C : {{$node[\"IF\"].json[\"CLOSE_PRIC\"]}}",
+        "additionalFields": {}
+      },
+      "id": "062aa03e-9f67-4979-908c-0e5151210c71",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        2660,
+        400
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from USDINRCONTRACT;"
+      },
+      "id": "c45fca68-0849-48b1-8cd3-2d7b40a2d399",
+      "name": "MySQL2",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        180
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"channel_post\"][\"sender_chat\"][\"username\"] }}",
+              "value2": "IPOAlerts1"
+            }
+          ]
+        }
+      },
+      "id": "b205ae50-8e82-4814-af5c-ffc2fa867083",
+      "name": "IF3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        700,
+        200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2e31394e-c96c-4bec-b550-fe42d5665f31",
+      "name": "No Operation, do nothing1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1180,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "GET"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "USDINR"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "value2": "CONTRACT"
+            }
+          ]
+        }
+      },
+      "id": "4cc08c93-b3a0-4dcf-b780-263f2b2791c1",
+      "name": "IF4",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "Select * from USDINRCONTRACT;"
+      },
+      "id": "6dfee67a-945c-43ff-ae95-da3eae08653d",
+      "name": "MySQL3",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        -440
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "d8106ecb-e96e-4f74-b1ae-6dc85bcd6612",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "GET"
+            },
+            {
+              "value2": "UPDATE",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "id": "a698f0dd-ac5a-4517-88ac-f05678bc49fb",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        940,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001849879177",
+        "text": "=USDINR CONTRACT : {{ $json[\"Symbol\"] }}\n",
+        "additionalFields": {}
+      },
+      "id": "da22ebcc-8108-4ecc-bf3a-4e482de7ea2b",
+      "name": "Telegram2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -440
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "GET"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "USDINR"
+            }
+          ]
+        }
+      },
+      "id": "53bb2f7c-2357-43f1-b22a-adce2d278523",
+      "name": "IF5",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from USDINRohlc ORDER by close DESC LIMIT 1;"
+      },
+      "id": "702361b6-dc6a-4f06-a97d-bee8c80d75cd",
+      "name": "MySQL4",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1700,
+        -240
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001849879177",
+        "text": "=USDINR CONTRACT : {{$json[\"contract\"].split(\"FUTCURUSDINR\")[1]}}\nLAST UPDATED DATE : {{$json[\"date\"].split(\"T\")[0]}}\nCLOSE : {{ $json[\"close\"] }}",
+        "additionalFields": {}
+      },
+      "id": "fe81eaca-1aff-4091-92d3-60d8908062e4",
+      "name": "Telegram3",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1940,
+        -240
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "UPDATE"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "USDINR"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "5c41cac5-d7dd-44d7-a472-27a1334e0fe4",
+      "name": "IF6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1220,
+        140
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "8c851da1-066c-4eb8-9abe-4a5f8ea62cc8",
+      "name": "No Operation, do nothing2",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "Select * from USDINRCONTRACT;"
+      },
+      "id": "21a3ae96-4ab3-43f0-b335-e2132cfc7885",
+      "name": "MySQL5",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        80
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE USDINRCONTRACT SET Symbol='{{$node[\"USDINR Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}' WHERE Symbol='{{$json[\"Symbol\"]}}';"
+      },
+      "id": "33a21e0e-0c0c-4f56-b44f-96918b2637af",
+      "name": "MySQL6",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        160
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001849879177",
+        "text": "=REPLACED USDINR CONTRACT!\nFROM : {{ $node[\"MySQL5\"].json[\"Symbol\"] }}\nTO : {{$node[\"USDINR Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+        "additionalFields": {}
+      },
+      "id": "18fcbe44-35b3-4096-9fb4-394e36b8b8fc",
+      "name": "Telegram4",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1900,
+        160
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "value": "={{ $node[\"Function\"].json[\"date_today\"] }}",
+        "dataPropertyName": "dbdate",
+        "custom": true,
+        "toFormat": "DD-MMM-YYYY",
+        "options": {}
+      },
+      "id": "55c7357d-d478-4d26-a6a5-8ec611f8a3fd",
+      "name": "DBdate",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"error\"][\"name\"] }}",
+              "operation": "contains",
+              "value2": "Error"
+            }
+          ]
+        }
+      },
+      "id": "288a223e-5e43-4a5e-b587-718ee086b5f7",
+      "name": "IF7",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001849879177",
+        "text": "=ERROR in Updating today's data in DB",
+        "additionalFields": {}
+      },
+      "id": "58eaf258-e0b8-4426-9823-757107e8adeb",
+      "name": "Telegram5",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        480
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "channel_post"
+        ],
+        "additionalFields": {}
+      },
+      "id": "bd4d9988-4403-4be9-acea-0312d435ef37",
+      "name": "USDINR Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        520,
+        200
+      ],
+      "webhookId": "6116f59e-44b9-4967-a65f-29484c8282fa",
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select * from USDINRCONTRACT;"
+      },
+      "id": "1e549ff7-44b8-4c97-bab0-60080be727ca",
+      "name": "MySQL7",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        420,
+        680
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "IF7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compression": {
+      "main": [
+        [
+          {
+            "node": "Spreadsheet File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spreadsheet File": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "DBdate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function": {
+      "main": [
+        [
+          {
+            "node": "IF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "MySQL7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cron": {
+      "main": [
+        [
+          {
+            "node": "Function",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL1": {
+      "main": [
+        [
+          {
+            "node": "IF2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2": {
+      "main": [
+        [
+          {
+            "node": "MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF3": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF4": {
+      "main": [
+        [
+          {
+            "node": "MySQL3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "IF4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL3": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF5": {
+      "main": [
+        [
+          {
+            "node": "MySQL4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL4": {
+      "main": [
+        [
+          {
+            "node": "Telegram3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF6": {
+      "main": [
+        [
+          {
+            "node": "MySQL5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL5": {
+      "main": [
+        [
+          {
+            "node": "MySQL6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL6": {
+      "main": [
+        [
+          {
+            "node": "Telegram4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DBdate": {
+      "main": [
+        [
+          {
+            "node": "MySQL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF7": {
+      "main": [
+        [
+          {
+            "node": "Telegram5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Compression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "USDINR Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL7": {
+      "main": [
+        [
+          {
+            "node": "Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "timezone": "Asia/Calcutta",
+    "saveExecutionProgress": "DEFAULT",
+    "saveManualExecutions": false,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "c9afa753-a122-4c4f-a7b7-ea2766e55a80",
+  "id": 1,
+  "meta": {
+    "instanceId": "58ee68d60517f9d2ac8f791fb763c92805f9c9a4daef7c20b9331d66a632c61f"
+  },
+  "tags": []
+}

@@ -1,0 +1,1082 @@
+{
+  "name": "Nexon_Fuel",
+  "nodes": [
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+        "rules": {
+          "rules": [
+            {
+              "operation": "contains",
+              "value2": "HELP"
+            },
+            {
+              "value2": "GET",
+              "output": 1
+            },
+            {
+              "value2": "ADD",
+              "output": 2
+            },
+            {
+              "value2": "DEL",
+              "output": 3
+            }
+          ]
+        }
+      },
+      "id": "a6d91bad-c397-4eef-b3d7-ae0949558cf3",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"channel_post\"][\"sender_chat\"][\"username\"] }}",
+              "value2": "TravelTracker"
+            }
+          ]
+        }
+      },
+      "id": "bcd849d5-4219-4e7b-81c9-c5c02a10fb09",
+      "name": "IF1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        900
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "131b7849-7e9e-4fc5-aa8a-37019999ac77",
+      "name": "No Operation, do nothing1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        1240
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=Below are the options\n\n\"GET NEXON 5\" - To Return last 5 Data\n\n\"GET NEXON ALL\" - To Return the ALL the Data\n\n\"ADD NEXON 3000 29.18 15666\" Wherein Cost-3000rs, Litres-29.18 and Trip-15666\n\n\"DEL NEXON 2022-12-25 3000 29.18 15666\" -This will remove all the data on a mentioned date",
+        "additionalFields": {}
+      },
+      "id": "caed541a-7fa5-4e48-ae2b-54267b9acc1e",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        200
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM NEXON ORDER BY DATE DESC LIMIT {{$json[\"channel_post\"][\"text\"].split(' ')[2]}};"
+      },
+      "id": "c6531559-fc5c-437e-ae4d-63196d2d48aa",
+      "name": "MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        100,
+        420
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[0]}}",
+              "value2": "GET"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[1]}}",
+              "value2": "NEXON"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[2]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "6e0b6bef-6f7a-46b7-baae-25afaab5bc23",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=INVALID INPUT!!!! Please use below format to GET data\n\"GET NEXON 5\" Return last 5 data\n\"GET NEXON ALL\" Return All data",
+        "additionalFields": {}
+      },
+      "id": "5676d95f-697a-4d67-a114-6a00866b00ea",
+      "name": "Telegram1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        520
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=====================================\nSNO:   DATE   :   COST : LITRE : ODO\n{{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "b2061b96-71e3-4f23-8716-3b206c5fc9ab",
+      "name": "Telegram2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        440,
+        420
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('MySQL').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['DATE']\n  data=data.substring(0, 10)\n  data2=a[i]['json']['COST']\n  data3=a[i]['json']['LITRE']\n  data4=a[i]['json']['ODO']\n  num=i + 1\n  out += `${num} : ${data} : ${data2} : ${data3} : ${data4}\\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "d71c5852-6f54-4871-ad7a-9c8d257881f3",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        280,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from NEXON;"
+      },
+      "id": "be1460d9-f5aa-47c0-adbc-1b798e19e6fd",
+      "name": "MySQL1",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        860,
+        220
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[2]}}",
+              "value2": "ALL"
+            }
+          ]
+        }
+      },
+      "id": "467265db-8d0a-4047-a455-3b6a477be65f",
+      "name": "IF2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -60,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM NEXON;"
+      },
+      "id": "26730858-c497-48e9-83cc-efd8f951318f",
+      "name": "MySQL2",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        100,
+        140
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "====================================\nSNO:   DATE   :   COST : LITRE : ODO\n{{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "a4b7bb61-266f-47ed-a7d1-7df5292ecef1",
+      "name": "Telegram3",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        420,
+        140
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('MySQL2').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['DATE']\n  data2=a[i]['json']['COST']\n  data3=a[i]['json']['LITRE']\n  data4=a[i]['json']['ODO']\n  num=i + 1\n  out += `${num} : ${data} : ${data2} : ${data3} : ${data4}\\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "eb921974-9438-4e32-a9b0-6a7781b2117c",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        260,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[0]}}",
+              "value2": "ADD"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[1]}}",
+              "value2": "NEXON"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[2]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[3]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[4]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "f850048e-a5f8-4b56-99ee-dc904fdd2778",
+      "name": "IF3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=INVALID INPUT!!!! Please use below format to ADD data\n\"ADD NEXON 3000 29.18 15666\" Wherein Cost=3000rs, Litres=29.18, Trip=15666",
+        "additionalFields": {}
+      },
+      "id": "6abbf12f-272a-482a-acd1-0cf9939d604b",
+      "name": "Telegram4",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        880
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "COST",
+              "value": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}"
+            },
+            {
+              "name": "LITRE",
+              "value": "={{$json[\"channel_post\"][\"text\"].split(\" \")[3]}}"
+            },
+            {
+              "name": "ODO",
+              "value": "={{$json[\"channel_post\"][\"text\"].split(\" \")[4]}}"
+            },
+            {
+              "name": "Date",
+              "value": "={{ $json[\"channel_post\"][\"date\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "decae092-b1de-4cf9-9a21-5ebcf47b6451",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO NEXON(DATE,COST,LITRE,ODO) values('{{ $node[\"DT\"].json[\"Dt\"] }}', '{{$node[\"DT\"].json[\"COST\"]}}', '{{ $node[\"DT\"].json[\"LITRE\"] }}', '{{$node[\"DT\"].json[\"ODO\"]}}')\n"
+      },
+      "id": "79150736-056c-4920-91c4-db407b4a13bb",
+      "name": "MySQL3",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        660,
+        540
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "value": "={{ $json[\"Date\"] }}",
+        "dataPropertyName": "Dt",
+        "toFormat": "YYYY-MM-DD",
+        "options": {}
+      },
+      "id": "eca4f8aa-d7aa-48ea-a4e8-92d8d1d7e132",
+      "name": "DT",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 1,
+      "position": [
+        80,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select * from NEXON where (DATE=\"{{$node[\"DT\"].json[\"Dt\"]}}\" AND COST=\"{{$node[\"DT\"].json[\"COST\"]}}\" AND LITRE=\"{{$node[\"DT\"].json[\"LITRE\"]}}\" AND ODO=\"{{$node[\"DT\"].json[\"ODO\"]}}\");"
+      },
+      "id": "2405ce5b-50af-4991-982f-65328a960ab4",
+      "name": "MySQL4",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        840,
+        540
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=Updated below data in DB \nDATE       : COST  : LITRE : ODO\n{{$node[\"DT\"].json[\"Dt\"]}} : {{ $json[\"COST\"] }} : {{ $json[\"LITRE\"] }} : {{ $json[\"ODO\"] }}",
+        "additionalFields": {}
+      },
+      "id": "2a6f2b61-92eb-43d3-8ed1-c69c18af13e2",
+      "name": "Telegram5",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        540
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=select * from NEXON where (DATE=\"{{$json[\"Dt\"]}}\" AND COST=\"{{$json[\"COST\"]}}\" AND LITRE=\"{{ $json[\"LITRE\"]}}\" AND ODO=\"{{ $json[\"ODO\"] }}\");"
+      },
+      "id": "24b93aec-af40-4920-bde9-328c83b8bc90",
+      "name": "MySQL5",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        280,
+        700
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Date"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"DATE\"] }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "id": "853e6321-8e3e-4b55-b672-bf036939cec8",
+      "name": "IF4",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        460,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=Below data is already updated in DB\nDATE       : COST  : LITRE : ODO \n{{ $node[\"DT\"].json[\"Dt\"] }} : {{ $json[\"COST\"] }} : {{ $json[\"LITRE\"] }} : {{ $json[\"ODO\"] }}",
+        "additionalFields": {}
+      },
+      "id": "c6f4b570-452d-4688-b3c4-0884f7cf604c",
+      "name": "Telegram6",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        680,
+        840
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[0]}}",
+              "value2": "DEL"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[1]}}",
+              "value2": "NEXON"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[2]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[3]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[4]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(' ')[5]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "1c773b9c-e1bc-40f1-9192-078573e5ad61",
+      "name": "IF5",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        1080
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=INVALID INPUT!!!! Please use below format to DELETE data\n\"DEL NEXON 2022-12-29 3000 29.18 15666\" Wherein Cost=3000rs, Litres=29.18, Trip=15666",
+        "additionalFields": {}
+      },
+      "id": "96018bbe-f3f6-43dd-9b3e-733eaf717b1c",
+      "name": "Telegram7",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        1260
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "COST",
+              "value": "={{$json[\"channel_post\"][\"text\"].split(\" \")[3]}}"
+            },
+            {
+              "name": "LITRE",
+              "value": "={{$json[\"channel_post\"][\"text\"].split(\" \")[4]}}"
+            },
+            {
+              "name": "ODO",
+              "value": "={{$json[\"channel_post\"][\"text\"].split(\" \")[5]}}"
+            },
+            {
+              "name": "Date",
+              "value": "={{ $json[\"channel_post\"][\"date\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1c814a07-d74f-4a25-958e-cc89022f3b27",
+      "name": "Set1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "value": "={{ $json[\"Date\"] }}",
+        "dataPropertyName": "Dt",
+        "toFormat": "YYYY-MM-DD",
+        "options": {}
+      },
+      "id": "43be28fd-f67d-488a-820a-65041339528f",
+      "name": "DT1",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=DELETE FROM NEXON where (DATE=\"{{ $json[\"Dt\"]}}\" AND COST=\"{{$json[\"COST\"] }}\" AND LITRE=\"{{ $json[\"LITRE\"]}}\" AND ODO=\"{{ $json[\"ODO\"] }}\");"
+      },
+      "id": "77f8a80e-ded7-48ef-b2f3-57cb3acb378b",
+      "name": "MySQL6",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        280,
+        1060
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Date"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=select * from NEXON where (DATE=\"{{$node[\"DT1\"].json[\"Dt\"]}}\" AND COST=\"{{$node[\"DT1\"].json[\"COST\"]}}\" AND LITRE=\"{{$node[\"DT1\"].json[\"LITRE\"]}}\" AND ODO=\"{{$node[\"DT1\"].json[\"ODO\"]}}\");"
+      },
+      "id": "68911c75-9cff-4252-89f8-688839dd4045",
+      "name": "MySQL7",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        460,
+        1060
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Date"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"DATE\"] }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "id": "0a934e77-5e4f-4670-99f3-d7a7eeb724ed",
+      "name": "IF6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        640,
+        1060
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=Removed the data from DB\nDATE       : COST  : LITRE : ODO \n{{ $node[\"DT1\"].json[\"Dt\"] }} : {{ $node[\"DT1\"].json[\"COST\"] }} : {{ $node[\"DT1\"].json[\"LITRE\"] }} : {{ $node[\"DT1\"].json[\"ODO\"] }}",
+        "additionalFields": {}
+      },
+      "id": "56997fca-cd31-438e-8d73-82ed091d5c14",
+      "name": "Telegram8",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        880,
+        980
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "=-1001561495714",
+        "text": "=Sorry looks like there is an Error in removing the data.",
+        "additionalFields": {}
+      },
+      "id": "d36cf280-55a1-4551-9f73-a9c8857e6fef",
+      "name": "Telegram9",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        880,
+        1200
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "channel_post"
+        ],
+        "additionalFields": {}
+      },
+      "id": "0729aeae-ce8d-4f77-b129-184981cef0d4",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        900
+      ],
+      "webhookId": "cb4f597b-3b39-4c24-877b-dadc8615aac4",
+      "credentials": {
+        "telegramApi": {
+          "id": "5",
+          "name": "Travel Tracker"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "IF1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "IF2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2": {
+      "main": [
+        [
+          {
+            "node": "MySQL2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL2": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Telegram3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF3": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "DT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DT": {
+      "main": [
+        [
+          {
+            "node": "MySQL5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL3": {
+      "main": [
+        [
+          {
+            "node": "MySQL4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL4": {
+      "main": [
+        [
+          {
+            "node": "Telegram5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL5": {
+      "main": [
+        [
+          {
+            "node": "IF4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF4": {
+      "main": [
+        [
+          {
+            "node": "MySQL3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF5": {
+      "main": [
+        [
+          {
+            "node": "Set1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set1": {
+      "main": [
+        [
+          {
+            "node": "DT1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DT1": {
+      "main": [
+        [
+          {
+            "node": "MySQL6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL7": {
+      "main": [
+        [
+          {
+            "node": "IF6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL6": {
+      "main": [
+        [
+          {
+            "node": "MySQL7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF6": {
+      "main": [
+        [
+          {
+            "node": "Telegram8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "2c7f612e-3719-4a8b-9ae6-9c80d2744ccb",
+  "id": 8,
+  "meta": {
+    "instanceId": "58ee68d60517f9d2ac8f791fb763c92805f9c9a4daef7c20b9331d66a632c61f"
+  },
+  "tags": []
+}
