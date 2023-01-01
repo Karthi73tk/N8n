@@ -1,0 +1,2328 @@
+{
+  "name": "MOMO_PORTFOLIO",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "channel_post"
+        ],
+        "additionalFields": {}
+      },
+      "id": "bee8bfab-bf4e-4898-9832-7637164f4bc8",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2560,
+        800
+      ],
+      "webhookId": "6ed6c72c-d5aa-429e-81e5-d03129e4cb6c",
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "GET"
+            },
+            {
+              "value2": "ADD",
+              "output": 1
+            },
+            {
+              "value2": "DEL",
+              "output": 2
+            },
+            {
+              "value2": "HELP",
+              "output": 3
+            },
+            {
+              "value2": "RANK",
+              "output": 3
+            }
+          ]
+        }
+      },
+      "id": "3d96f722-f4f9-406b-9904-a9b17f46d0e8",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -2000,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"channel_post\"][\"sender_chat\"][\"username\"] }}",
+              "value2": "IPOAlerts1"
+            }
+          ]
+        }
+      },
+      "id": "3b88e2dc-b119-4428-b924-dbe2525665a0",
+      "name": "IF1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -2340,
+        800
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "dcb67b48-a056-4ddd-8a97-c87303aa2f9b",
+      "name": "No Operation, do nothing1",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -2200,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select Symbol from {{$json[\"channel_post\"][\"text\"].split(\" \")[1]}};"
+      },
+      "id": "b448bdd7-5730-46d5-8978-9cd76f71f5a8",
+      "name": "AlgoDB",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -1020,
+        -380
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "ACTIVE"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "TOP"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "8149aa67-0255-4d24-bcff-8920370f55b9",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1720,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "={{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "f3c69138-0ab7-4086-8c58-a5b9420e7043",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        -380
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('AlgoDB').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['Symbol']\n  num=i + 1\n  out += `${num}. ${data}\\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "e9ea404c-8bad-472c-a647-392d39332e02",
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -380
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "ACTIVE"
+            }
+          ]
+        }
+      },
+      "id": "13902efc-1f67-4cbe-9d75-85bd3313ead4",
+      "name": "IF2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1560,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select * from N750Bullish limit 0,{{$json[\"channel_post\"][\"text\"].split(\" \")[2]}};"
+      },
+      "id": "5d56733f-1ba7-4995-b4de-3afd56b4c9b1",
+      "name": "AlgoDB1",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -160
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "={{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "4c14763f-16f3-404e-8729-6c3a9b99a8c5",
+      "name": "Telegram2",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        -140
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('AlgoDB1').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['Symbol']\n  data1=a[i]['json']['ROC']\n  data2=a[i]['json']['RANK']\n  num=i + 1\n  out += `${num}. ${data} : ${data1} : ${data2}\\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "77bca8be-cf12-4da4-9d75-61b65a136f93",
+      "name": "Code1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "473513a1-1d4f-4254-a631-a8434a589aee",
+      "name": "IF3",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1060,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "ERROR: Invalid Trigger\nPlease use Any of below commands\nGET ACTIVE - To Get Active Portfolio List!\nGET TOP 5 - To Get Top 5 Stocks based on Momentum Ranking!\nADD ACTIVE \"SYMBOL\" - To add the stock to Portfolio List!\nDEL ACTIVE \"SYMBOL\" - To remove the stock from Portfolio List!\nADD BUY \"SYMBOL\" \"BUYPRICE\" \"BUYQTY\" \"BUYDATE\" - To add the stock to Trades List! \nADD SELL \"SYMBOL\" \"BUYPRICE\" \"BUYDATE\" - To Exit the stock from Trades List! \nDEL BUY \"SYMBOL\" \"BUYPRICE\"- To add the stock to Trades List!\nGET TRADES \"SYMBOL\" - Get Trades of a particular stocks!\nGET TRADES ALL - To Get all trade logs",
+        "additionalFields": {}
+      },
+      "id": "d8c20132-d6e8-4188-8bc0-dfea135aaec8",
+      "name": "Telegram3",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        20
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "ADD"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "ACTIVE"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "e2193966-6b7c-4e94-b416-edfa16c4482d",
+      "name": "IF7",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1500,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO ACTIVE(Symbol) values('{{   $node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}')"
+      },
+      "id": "8c14001e-25b0-4946-b5f5-1a31ce75cdcc",
+      "name": "MySQL4",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        420
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=select * from ACTIVE where Symbol='{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}'"
+      },
+      "id": "15e763f8-57ac-4d82-ac8d-e0281f29b9ca",
+      "name": "MySQL",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        520
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Failed"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"Symbol\"] }}",
+              "operation": "isEmpty"
+            }
+          ]
+        }
+      },
+      "id": "ab7260ba-5409-4392-9061-523c7a3a50f9",
+      "name": "IF4",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=Successfully added {{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+        "additionalFields": {}
+      },
+      "id": "04e14a17-c07a-475e-990d-cc0bd401c450",
+      "name": "Telegram5",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        420
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=ERROR! {{ $node[\"MySQL\"].json[\"Symbol\"] }} is already added",
+        "additionalFields": {}
+      },
+      "id": "af97059b-1c0f-4176-a480-f07913dc1e96",
+      "name": "Telegram6",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        620
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "DEL"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "ACTIVE"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "df285366-06ea-4504-af0d-33184318a722",
+      "name": "IF8",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1640,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=select * from ACTIVE where Symbol='{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}'"
+      },
+      "id": "03b68426-3610-4f52-811b-867e8027d8e3",
+      "name": "MySQL1",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -1480,
+        960
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Failed"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"Symbol\"] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "81cf70fb-ec45-41fe-a98c-4284ebc986b2",
+      "name": "IF5",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1340,
+        1140
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=DELETE FROM ACTIVE WHERE Symbol='{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}'"
+      },
+      "id": "21daa253-c107-4d1e-ab02-1091b1b78e65",
+      "name": "MySQL5",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -1020,
+        1060
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=Successfully deleted {{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+        "additionalFields": {}
+      },
+      "id": "193f0295-edd3-4355-b7ac-71250f623695",
+      "name": "Telegram8",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -780,
+        1080
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=ERROR!{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}} is already deleted",
+        "additionalFields": {}
+      },
+      "id": "3c98320e-cbcd-4095-8a17-70ac4bae468d",
+      "name": "Telegram9",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -1000,
+        1280
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "ERROR: Invalid Trigger Please use Any of below commands \nGET ACTIVE - To Get Active Portfolio List! \nGET TOP 5 - To Get Top 5 Stocks based on Momentum Ranking! \nADD ACTIVE \"SYMBOL\" - To add the stock to Portfolio List! \nDEL ACTIVE \"SYMBOL\" - To remove the stock from Portfolio List!",
+        "additionalFields": {}
+      },
+      "id": "e1aec8ee-325d-4077-8f3e-29df2769133e",
+      "name": "Telegram10",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -1200,
+        1820
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "HELP"
+            }
+          ]
+        }
+      },
+      "id": "ccdd94b7-1252-457f-8559-271774074231",
+      "name": "IF9",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1740,
+        1800
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "RANK"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "9fe855e6-dba5-4927-aad6-95d34e412897",
+      "name": "IF6",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1180,
+        2120
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "ERROR: Invalid Trigger Please use Any of below commands\nGET ACTIVE - To Get Active Portfolio List!\nGET TOP 5 - To Get Top 5 Stocks based on Momentum Ranking!\nADD ACTIVE \"SYMBOL\" - To add the stock to Portfolio List!\nDEL ACTIVE \"SYMBOL\" - To remove the stock from Portfolio List!\nADD BUY \"SYMBOL\" \"BUYPRICE\" \"BUYQTY\" \"BUYDATE\" - To add the stock to Trades List! \nADD SELL \"SYMBOL\" \"BUYPRICE\" \"BUYDATE\" - To Exit the stock from Trades List! \nDEL BUY \"SYMBOL\" \"BUYPRICE\"- To add the stock to Trades List!\nGET TRADES \"SYMBOL\" - Get Trades of a particular stocks!\nGET TRADES ALL - To Get all trade logs",
+        "additionalFields": {}
+      },
+      "id": "d8ca4917-9534-47a9-94ca-e5a9c3e0e998",
+      "name": "Telegram11",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -840,
+        2280
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "SYM",
+              "value": "={{ $json[\"Symbol\"] }}"
+            },
+            {
+              "name": "ROC",
+              "value": "={{ $json[\"ROC\"] }}"
+            },
+            {
+              "name": "RANK",
+              "value": "={{ $json[\"RANK\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6426a377-cdf8-4447-9fd2-9e8d8fe33220",
+      "name": "Set",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "aggregate": "aggregateAllItemData"
+      },
+      "id": "4a11b273-ae19-4d14-a639-4a448b60af79",
+      "name": "Item Lists1",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "select * from ACTIVE;"
+      },
+      "id": "50f72ace-2770-44dd-95f9-85b56e730719",
+      "name": "MySQL2",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        1820
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select * from N750Bullish where Symbol=\"{{ $json[\"Symbol\"] }}\""
+      },
+      "id": "608dce51-9c99-47b2-a8b6-1b01dfe7ee1b",
+      "name": "MySQL3",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        1820
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('Set').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['Symbol']\n  data2=a[i]['json']['ROC']\n  data3=a[i]['json']['RANK']\n  num=i + 1\n  out += `${data} . ${data2} : ${data3} \\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "49919610-bd5e-4aef-bae2-4cadc4d096ce",
+      "name": "Code2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        440,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "={{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "a0bc8a3a-43ea-4585-a375-f79b0824cdc3",
+      "name": "Telegram12",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        700,
+        1820
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "ALL"
+            }
+          ]
+        }
+      },
+      "id": "fc6ad29a-5c51-4ae0-bb22-828a35d3580a",
+      "name": "IF10",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -840,
+        1940
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select * from N750Bullish where Symbol='{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[1]}}'"
+      },
+      "id": "8cdf355d-5453-4143-a28b-8fee0478fab4",
+      "name": "MySQL6",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -600,
+        2100
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Failed"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"Symbol\"] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "dfd5f9c3-03a6-4072-b518-6f11d8da9f3b",
+      "name": "IF11",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        2100
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=ERROR!{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[1]}} is not in Bullish List",
+        "additionalFields": {}
+      },
+      "id": "3893a889-e9ec-4764-a9bc-f04c8f6584fb",
+      "name": "Telegram13",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        60,
+        2160
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "SYM",
+              "value": "={{ $json[\"Symbol\"] }}"
+            },
+            {
+              "name": "ROC",
+              "value": "={{ $json[\"ROC\"] }}"
+            },
+            {
+              "name": "RANK",
+              "value": "={{ $json[\"RANK\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b7b3adf3-3829-4645-8b81-9d7c39ef85ed",
+      "name": "Set1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        240,
+        1940
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "aggregateItems",
+        "aggregate": "aggregateAllItemData"
+      },
+      "id": "8147a682-ad80-43af-bb1d-7d31ab358164",
+      "name": "Item Lists",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [
+        440,
+        1940
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=Select * from N750Bullish where Symbol=\"{{ $json[\"Symbol\"] }}\""
+      },
+      "id": "e1ddd4db-7a79-4ed5-b113-638482981b4e",
+      "name": "MySQL7",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1940
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('Set1').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['Symbol']\n  data2=a[i]['json']['ROC']\n  data3=a[i]['json']['RANK']\n  num=i + 1\n  out += `${data} . ${data2} : ${data3} \\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "8bf1381c-6083-4dca-989b-ab769c7b0a13",
+      "name": "Code3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        640,
+        1940
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "={{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "006c01ed-2ec2-4b54-b416-ee082bda9357",
+      "name": "Telegram14",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        880,
+        1940
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "GET"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "TRADES"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "dc5609bf-62fe-48f5-8119-ce1fb67af5dc",
+      "name": "IF12",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1240,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "value2": "LAST"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[3]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "07f36368-1dd4-4849-99c8-0745516996db",
+      "name": "IF13",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM TRADES ORDER BY EntryDate DESC LIMIT {{$json[\"channel_post\"][\"text\"].split(' ')[3]}};"
+      },
+      "id": "345b0cda-8499-4a6b-b76f-c5b64b76e8d6",
+      "name": "MySQL8",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        -440
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Failed"
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "ERROR: Invalid Trigger, Please use Any of below commands\nGET ACTIVE - To Get Active Portfolio List!\nGET TOP 5 - To Get Top 5 Stocks based on Momentum Ranking!\nADD ACTIVE \"SYMBOL\" - To add the stock to Portfolio List!\nDEL ACTIVE \"SYMBOL\" - To remove the stock from Portfolio List!\nADD BUY \"SYMBOL\" \"BUYPRICE\" \"BUYQTY\" \"BUYDATE\" - To add the stock to Trades List! \nADD SELL \"SYMBOL\" \"BUYPRICE\" \"BUYDATE\" - To Exit the stock from Trades List! \nDEL BUY \"SYMBOL\" \"BUYPRICE\"- To add the stock to Trades List!\nGET TRADES \"SYMBOL\" - Get Trades of a particular stocks!\nGET TRADES ALL - To Get all trade logs",
+        "additionalFields": {}
+      },
+      "id": "319f2c35-7618-42e5-a6ae-1606a51f4a7c",
+      "name": "Telegram15",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        340
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM TRADES"
+      },
+      "id": "edbe20d1-9d84-4aa3-a1c5-04ac292f2c64",
+      "name": "MySQL9",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        -240
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Failed"
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('MySQL8').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['Symbol']\n  data1=a[i]['json']['BUY']\n  data2=a[i]['json']['Qty']\n  data3=a[i]['json']['SELL']\n  data4=a[i]['json']['EntryDate']\n  data5=a[i]['json']['ExitDate']\n  data6=a[i]['json']['Status']\n  num=i + 1\n  out += `${num}. ${data} : ${data1} : ${data2} : ${data3} : ${data4} : ${data5} : ${data6}\\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "f6459078-7646-4681-8dde-fdf9e5b8fce5",
+      "name": "Code4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        -440
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=S.NO. SYMBOL : BUY : QTY : SELL : EntryDate : ExitDate : Status\n{{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "d6f07336-1c04-47a4-99c1-4ba49a211fff",
+      "name": "Telegram16",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        -440
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('MySQL9').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['Symbol']\n  data1=a[i]['json']['BUY']\n  data2=a[i]['json']['Qty']\n  data3=a[i]['json']['SELL']\n  data4=a[i]['json']['EntryDate']\n  data5=a[i]['json']['ExitDate']\n  data6=a[i]['json']['Status']\n  num=i + 1\n  out += `${num}. ${data} : ${data1} : ${data2} : ${data3} : ${data4} : ${data5} : ${data6}\\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "b0b80a08-e5a0-4b13-b783-2d907526a96b",
+      "name": "Code5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=S.NO. SYMBOL : BUY : QTY : SELL : EntryDate : ExitDate : Status\n{{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "e040ba4b-295f-4408-ba33-447bebfb4750",
+      "name": "Telegram17",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        -240
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "value2": "ALL"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "value2": "LAST"
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "e928f628-733e-4eee-b4ae-4c409dc5228a",
+      "name": "IF14",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "ec0e7501-7478-47cc-bcff-38c815b10ce5",
+      "name": "IF15",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        360,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "a=$('MySQL10').all()\nlet length = a.length\n//b=a[0]['json']['Symbol']\nlet out = ''\nfor(let i = 0 ; i<length; i++){\n  data=a[i]['json']['Symbol']\n  data1=a[i]['json']['BUY']\n  data2=a[i]['json']['Qty']\n  data3=a[i]['json']['SELL']\n  data4=a[i]['json']['EntryDate']\n  data5=a[i]['json']['ExitDate']\n  data6=a[i]['json']['Status']\n  num=i + 1\n  out += `${num}. ${data} : ${data1} : ${data2} : ${data3} : ${data4} : ${data5} : ${data6}\\n`;\n}\n\nreturn{\"json\":{out}}"
+      },
+      "id": "10b62fab-15ca-48f1-963d-d4f715f82559",
+      "name": "Code6",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=S.NO. SYMBOL : BUY : QTY : SELL : EntryDate : ExitDate : Status\n{{ $json[\"out\"] }}",
+        "additionalFields": {}
+      },
+      "id": "3e405f3b-cdc6-4e9b-ab78-75ef040d1a6d",
+      "name": "Telegram18",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -40
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "ERROR: Invalid Trigger Please use Any of below commands \nADD BUY \"SYMBOL\" \"BUYPRICE\" \"BUYQTY\" \"BUYDATE\" - To add the stock to Trades List! \nADD SELL \"SYMBOL\" \"BUYPRICE\" \"BUYDATE\" - To Exit the stock from Trades List! \nDEL BUY \"SYMBOL\" \"BUYPRICE\"- To add the stock to Trades List! ",
+        "additionalFields": {}
+      },
+      "id": "dc878196-2794-4481-b460-6b48cd276d6d",
+      "name": "Telegram19",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        800,
+        340
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT * FROM TRADES where Symbol='{{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}'"
+      },
+      "id": "dae29342-37b4-4579-aaac-44639506c037",
+      "name": "MySQL10",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        800,
+        80
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Failed"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"Symbol\"] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "1b66e195-032f-4020-ac86-dbc6fcd08be6",
+      "name": "IF16",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=Error No trade found for {{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+        "additionalFields": {}
+      },
+      "id": "c0ad2417-c064-4ff0-92b3-22d4952f7a37",
+      "name": "Telegram20",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1460,
+        160
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "BUY"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[3]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[4]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[5]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "962cf5ff-cf30-4ff5-8ce2-d86852f041da",
+      "name": "IF17",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1160,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO TRADES(Symbol,BUY,Qty,EntryDate,Status) values('{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}','{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[3]}}','{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[4]}}','{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[5]}}','Active');"
+      },
+      "id": "fa5d983d-0f97-497c-a2a6-8ba2b3862179",
+      "name": "MySQL11",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        800
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE TRADES SET SELL = {{ $node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[3]}}, ExitDate = '{{ $node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[4] }}', Status = 'Closed' WHERE symbol = '{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2] }}' AND Status =\"Active\";"
+      },
+      "id": "1db8f068-c8e7-4beb-8987-a9cde6412d70",
+      "name": "MySQL12",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        940
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "SELL"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[3]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[4]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "eaa81a6b-7517-463f-a876-4d2730183d8f",
+      "name": "IF18",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -540,
+        1020
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "ERROR: Invalid Trigger\nPlease use Any of below commands\nGET ACTIVE - To Get Active Portfolio List!\nGET TOP 5 - To Get Top 5 Stocks based on Momentum Ranking!\nADD ACTIVE \"SYMBOL\" - To add the stock to Portfolio List!\nDEL ACTIVE \"SYMBOL\" - To remove the stock from Portfolio List!\nADD BUY \"SYMBOL\" \"BUYPRICE\" \"BUYQTY\" \"BUYDATE\" - To add the stock to Trades List! \nADD SELL \"SYMBOL\" \"BUYPRICE\" \"BUYDATE\" - To Exit the stock from Trades List! \nDEL BUY \"SYMBOL\" \"BUYPRICE\"- To add the stock to Trades List!\nGET TRADES \"SYMBOL\" - Get Trades of a particular stocks!\nGET TRADES ALL - To Get all trade logs",
+        "additionalFields": {}
+      },
+      "id": "3ea43df5-5d5c-49b4-af66-dc82b736b6c4",
+      "name": "Telegram1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        1120
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=Successfully Added {{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}} : {{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[3]}} ",
+        "additionalFields": {}
+      },
+      "id": "023378ee-85c5-4a8d-9ba3-ef25dc5b52c1",
+      "name": "Telegram21",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        760
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "ERROR: Invalid Trigger Please use Any of below commands\nGET ACTIVE - To Get Active Portfolio List!\nGET TOP 5 - To Get Top 5 Stocks based on Momentum Ranking!\nADD ACTIVE \"SYMBOL\" - To add the stock to Portfolio List!\nDEL ACTIVE \"SYMBOL\" - To remove the stock from Portfolio List!\nADD BUY \"SYMBOL\" \"BUYPRICE\" \"BUYQTY\" \"BUYDATE\" - To add the stock to Trades List! \nADD SELL \"SYMBOL\" \"BUYPRICE\" \"BUYDATE\" - To Exit the stock from Trades List! \nDEL BUY \"SYMBOL\" \"BUYPRICE\"- To add the stock to Trades List!\nGET TRADES \"SYMBOL\" - Get Trades of a particular stocks!\nGET TRADES ALL - To Get all trade logs",
+        "additionalFields": {}
+      },
+      "id": "d2e4ba82-573b-4873-8af7-2a0061f4a853",
+      "name": "Telegram7",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        1680
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[0]}}",
+              "value2": "DEL"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[1]}}",
+              "value2": "BUY"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[2]}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json[\"channel_post\"][\"text\"].split(\" \")[3]}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "a4bcadbf-bda2-4da8-a298-ee9b29e0c8c4",
+      "name": "IF19",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1380,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json[\"Symbol\"] }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "7327c416-340e-449d-9c1f-12ac4b73a9e1",
+      "name": "IF20",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -380,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=ERROR!{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}} is already deleted",
+        "additionalFields": {}
+      },
+      "id": "0d506f33-8415-4219-a99e-c97acbd876b3",
+      "name": "Telegram22",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        1500
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=select * from ACTIVE where Symbol='{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}'"
+      },
+      "id": "81e1c2e4-e23e-40ab-a13a-cca53692842e",
+      "name": "MySQL13",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -740,
+        1440
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      },
+      "notes": "Failed"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=DELETE FROM TRADES WHERE Symbol='{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}}' AND BUY ='{{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[3]}}'"
+      },
+      "id": "28bca45a-f32d-49ee-9360-d61572822f0f",
+      "name": "MySQL14",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        1280
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "2",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1001877119379",
+        "text": "=Successfully deleted {{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[2]}} : {{$node[\"Telegram Trigger\"].json[\"channel_post\"][\"text\"].split(\" \")[3]}} ",
+        "additionalFields": {}
+      },
+      "id": "389c0d32-2649-4866-8e84-878a46393100",
+      "name": "Telegram23",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        120,
+        1280
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "1",
+          "name": "3EyedRaven"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "IF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "IF2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlgoDB": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF2": {
+      "main": [
+        [
+          {
+            "node": "AlgoDB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AlgoDB1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF3": {
+      "main": [
+        [
+          {
+            "node": "AlgoDB1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF7": {
+      "main": [
+        [
+          {
+            "node": "MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL": {
+      "main": [
+        [
+          {
+            "node": "IF4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF4": {
+      "main": [
+        [
+          {
+            "node": "MySQL4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL4": {
+      "main": [
+        [
+          {
+            "node": "Telegram5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF8": {
+      "main": [
+        [
+          {
+            "node": "MySQL1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL1": {
+      "main": [
+        [
+          {
+            "node": "IF5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL5": {
+      "main": [
+        [
+          {
+            "node": "Telegram8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF5": {
+      "main": [
+        [
+          {
+            "node": "MySQL5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF9": {
+      "main": [
+        [
+          {
+            "node": "Telegram10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF6": {
+      "main": [
+        [
+          {
+            "node": "IF10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Item Lists1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists1": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL2": {
+      "main": [
+        [
+          {
+            "node": "MySQL3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL3": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Telegram12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF10": {
+      "main": [
+        [
+          {
+            "node": "MySQL2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MySQL6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF11": {
+      "main": [
+        [
+          {
+            "node": "MySQL7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL6": {
+      "main": [
+        [
+          {
+            "node": "IF11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set1": {
+      "main": [
+        [
+          {
+            "node": "Item Lists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Item Lists": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL7": {
+      "main": [
+        [
+          {
+            "node": "Set1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Telegram14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF12": {
+      "main": [
+        [
+          {
+            "node": "IF14",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF13": {
+      "main": [
+        [
+          {
+            "node": "MySQL8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "MySQL9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL8": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL9": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "Telegram16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Telegram17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF14": {
+      "main": [
+        [
+          {
+            "node": "IF13",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF15": {
+      "main": [
+        [
+          {
+            "node": "MySQL10",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Telegram18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL10": {
+      "main": [
+        [
+          {
+            "node": "IF16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF16": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram20",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF17": {
+      "main": [
+        [
+          {
+            "node": "MySQL11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL11": {
+      "main": [
+        [
+          {
+            "node": "Telegram21",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF18": {
+      "main": [
+        [
+          {
+            "node": "MySQL12",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF19": {
+      "main": [
+        [
+          {
+            "node": "MySQL13",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF20": {
+      "main": [
+        [
+          {
+            "node": "MySQL14",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram22",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL13": {
+      "main": [
+        [
+          {
+            "node": "IF20",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL14": {
+      "main": [
+        [
+          {
+            "node": "Telegram23",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "8cb243ef-b30c-41c9-9909-6136b8969187",
+  "id": 14,
+  "meta": {
+    "instanceId": "58ee68d60517f9d2ac8f791fb763c92805f9c9a4daef7c20b9331d66a632c61f"
+  },
+  "tags": [
+    {
+      "createdAt": "2023-01-01T09:05:10.005Z",
+      "updatedAt": "2023-01-01T09:05:10.005Z",
+      "id": "1",
+      "name": "Karthik"
+    }
+  ]
+}
